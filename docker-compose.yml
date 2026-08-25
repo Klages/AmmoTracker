@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   webserver:
-    image: ghcr.io/klages/ammotracker-web:a8a42f3
+    image: ghcr.io/klages/ammotracker-web:c8e21a4
     ports:
       - "8081:80"
     volumes:
@@ -11,7 +11,7 @@ services:
       - scraper-worker
 
   scraper-worker:
-    image: ghcr.io/klages/ammotracker-worker:a8a42f3
+    image: ghcr.io/klages/ammotracker-worker:c8e21a4
     volumes:
       - /volume2/docker/ammotracker:/app/data
     environment:
