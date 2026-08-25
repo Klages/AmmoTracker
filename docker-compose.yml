@@ -1,0 +1,20 @@
+version: '3.8'
+
+services:
+  webserver:
+    image: ghcr.io/klages/ammotracker-web:8261b7c
+    ports:
+      - "8081:80"
+    volumes:
+      - /volume2/docker/ammotracker:/app/data
+    depends_on:
+      - scraper-worker
+
+  scraper-worker:
+    image: ghcr.io/klages/ammotracker-worker:8261b7c
+    volumes:
+      - /volume2/docker/ammotracker:/app/data
+    environment:
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD:-admin123}
+    restart: always

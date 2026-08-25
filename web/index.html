@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ammo Tracker - CH Ammo Prices</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css?v=4">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="glass-container">
+        <header>
+            <h1>Ammo Tracker CH</h1>
+            <p>Daily updated prices for bulk ammunition</p>
+            <div class="controls">
+                <select id="caliber-filter">
+                    <option value="all">All Calibers</option>
+                </select>
+                <select id="brand-filter">
+                    <option value="all">All Brands</option>
+                </select>
+                <select id="shop-filter">
+                    <option value="all">All Shops</option>
+                </select>
+                <select id="sort-select">
+                    <option value="price_asc">Price per round ascending</option>
+                    <option value="price_desc">Price per round descending</option>
+                    <option value="date_desc">Latest Updates</option>
+                </select>
+                <input type="text" id="search-input" placeholder="Search (Brand, Shop...)">
+            </div>
+        </header>
+
+        <div id="admin-panel" class="hidden">
+            <div id="admin-login-view" style="text-align: center; padding: 1rem 0;">
+                <h3 style="margin-bottom: 1rem;">Admin Panel Unlock</h3>
+                <div class="admin-form" style="justify-content: center;">
+                    <input type="password" id="admin-master-pw" placeholder="Admin Password">
+                    <button id="admin-unlock-btn" style="background: var(--accent-color);">Unlock</button>
+                </div>
+                <p id="admin-login-msg"></p>
+            </div>
+
+            <div id="admin-tools-view" class="hidden">
+                <h3>Add new Shop</h3>
+                <div class="admin-form">
+                    <input type="text" id="new-url" placeholder="Shop URL (https://...)">
+                    <button id="add-url-btn">Add</button>
+                </div>
+                <hr style="margin: 2rem 0; border: 1px solid var(--border-color);">
+            
+            <h3 style="color: #ef4444; margin-bottom: 1rem;">Fix erroneous price jumps</h3>
+            <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 1rem;">Searches the database for unnatural price jumps (>15%), deletes the error and lets the AI read the price again.</p>
+            <button id="auto-repair-btn" style="background: #ef4444; color: white; padding: 0.8rem 1.5rem; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; width: 100%;">Automatically repair all errors</button>
+            <div id="repair-msg" style="margin-top: 1rem; font-size: 0.9rem;"></div>
+            
+            <h3 style="margin-top: 2rem; color: #ef4444;">Delete Entry (Blacklist)</h3>
+                <div class="admin-form">
+                    <select id="delete-item-select" style="flex: 2; min-width: 300px;">
+                        <option value="">Select product...</option>
+                    </select>
+                    <button id="delete-item-btn" style="background: #ef4444;">Delete</button>
+                </div>
+                <p id="admin-del-msg"></p>
+                
+                <div style="margin-top: 2rem; border-top: 1px solid var(--glass-border); padding-top: 1.5rem; text-align: center;">
+                    <button id="cleanup-btn" style="background: #f59e0b;">Clean Database (Merge Duplicates)</button>
+                    <p id="cleanup-msg" style="margin-top: 0.5rem; font-size: 0.85rem; color: var(--text-secondary);"></p>
+                </div>
+                <div style="margin-top: 2rem; border-top: 1px solid var(--glass-border); padding-top: 1.5rem; text-align: center;">
+                    <h3 style="margin-bottom: 1rem; color: #ef4444;">Danger Zone</h3>
+                    <button id="nuke-btn" style="background: transparent; border: 2px solid #ef4444; color: #ef4444; padding: 0.8rem 1.5rem; border-radius: 8px; font-weight: bold; cursor: pointer; width: 100%;">🔥 Delete Database completely & rescan 🔥</button>
+                    <p id="nuke-msg" style="margin-top: 0.5rem; font-size: 0.85rem; color: var(--text-secondary);"></p>
+                </div>
+            </div>
+        </div>
+
+        <main>
+            <div id="dashboard-widgets" class="widgets-container">
+                <div class="widget">
+                    <h4>Best Price 9x19mm</h4>
+                    <p id="widget-9mm">Loading...</p>
+                </div>
+                <div class="widget">
+                    <h4>Best Price .223 Rem</h4>
+                    <p id="widget-223">Loading...</p>
+                </div>
+                <div class="widget">
+                    <h4>Best Price 7.62x39</h4>
+                    <p id="widget-762">Loading...</p>
+                </div>
+            </div>
+
+            <div class="table-wrapper">
+                <table id="ammo-table">
+                    <thead>
+                        <tr>
+                            <th>Caliber</th>
+                            <th>Brand</th>
+                            <th>Shop</th>
+                            <th>Amount</th>
+                            <th>Total (CHF)</th>
+                            <th>CHF / Round</th>
+                            <th>Price per 1000</th>
+                            <th>Last Update</th>
+                            <th>Shop Link</th>
+                            <th>Price History</th>
+                        </tr>
+                    </thead>
+                    <tbody id="table-body">
+                        <!-- Data will be loaded here -->
+                    </tbody>
+                </table>
+            </div>
+        </main>
+        
+        <footer style="text-align: center; margin-top: 3rem;">
+            <button id="admin-btn" class="subtle-btn">Admin Panel</button>
+        </footer>
+    </div>
+
+    <!-- Chart Modal -->
+    <div id="chart-modal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modal-title">Price History</h3>
+                <button class="close-btn" onclick="closeChartModal()" style="background:none;border:none;color:white;font-size:1.5rem;cursor:pointer;position:absolute;top:1rem;right:1rem;">&times;</button>
+            </div>
+            <div class="modal-body" style="height: 400px; width: 100%;">
+                <canvas id="modalChart"></canvas>
+            </div>
+            <div style="text-align: right; margin-top: 10px; display: flex; justify-content: space-between;">
+                <button id="clear-history-btn" style="background: transparent; border: 1px solid #f59e0b; color: #f59e0b; font-size: 0.8rem; padding: 0.3rem 0.6rem; cursor: pointer;">Delete old history</button>
+                <button id="reset-tracker-btn" style="background: transparent; border: 1px solid #ef4444; color: #ef4444; font-size: 0.8rem; padding: 0.3rem 0.6rem; cursor: pointer;">Delete last price & Retrain AI</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js?v=10"></script>
+</body>
+</html>
