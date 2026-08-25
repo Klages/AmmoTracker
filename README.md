@@ -6,7 +6,7 @@
 
 A turnkey, Docker-based tool for automated tracking and visualization of ammunition prices (1000-round bulk) across various Swiss online shops.
 
-*(Add a screenshot of the web interface here! e.g., `![Ammo Tracker Screenshot](docs/screenshot.png)`)*
+<img width="2686" height="1590" alt="image" src="https://github.com/user-attachments/assets/1b0783c5-dea9-454b-8b07-0485f545f381" />
 
 ## ✨ Features
 
