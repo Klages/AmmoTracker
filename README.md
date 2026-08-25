@@ -60,6 +60,16 @@ Here, using your `ADMIN_PASSWORD`, you can add new URLs for Swiss gun shops. The
 
 All generated data (price JSONs, shop URLs) is stored in the `shared-data` Docker volume (`/app/data`). This ensures that your data remains persistent even after restarting or updating the containers.
 
+## 🤖 CI/CD Workflow
+
+This repository includes a fully configured **GitHub Actions** workflow (`docker-publish.yml`). 
+Every time code is pushed to the `master` branch, the workflow automatically:
+1. Builds the latest `web` and `worker` Docker images.
+2. Publishes them to the GitHub Container Registry (`ghcr.io/klages/...`).
+3. Updates the `docker-compose.yml` file with the latest image tags.
+
+**If you fork this repository**, you will need to update the `USERNAME` and `IMAGE` environment variables in `.github/workflows/docker-publish.yml` and `docker-compose.yml` to point to your own GitHub username!
+
 ## 📜 License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
